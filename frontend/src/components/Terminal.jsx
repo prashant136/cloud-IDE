@@ -16,11 +16,11 @@ const Terminal = () => {
 
         // Handle terminal input
         terminal.onData((data) => {
-            console.log('terminal.onData--', data);
+            // console.log('terminal.onData--', data);
             socket.emit('terminal:write', data);
         });
         socket.on('terminal:data', (data) => {
-            console.log('terminal:data in UI 👋', data);
+            // console.log('terminal:data in UI 👋', data);
             terminal.write(data);
         })
 

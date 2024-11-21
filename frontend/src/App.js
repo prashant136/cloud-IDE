@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import "./App.css";
+import "./App.scss";
 import Terminal from "./components/Terminal";
 import FileTree from "./components/FileTree";
 import socket from "./socket";
@@ -10,6 +10,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 function App() {
     const [fileTree, setFileTree] = useState({});
     const [selectedFile, setSelectedFile] = useState("");
+    const [selectedFileContent, setSelectedFileContent] = useState("");
     const [code, setCode] = useState("");
 
     const getFileTree = () => {
@@ -25,11 +26,17 @@ function App() {
             });
     };
 
+    const getFileContent = async () => {
+        if (!selectedFile) return;
+        const res = await fetch("http://localhost:9000/files/content");
+        const json = await res.json();
+        console.log("json", json);
+        setSelectedFileContent(json.content);
+    };
+
     useEffect(() => {
         getFileTree();
     }, []);
-
-    console.log("filetree-", fileTree);
 
     useEffect(() => {
         socket.on("file:refresh", getFileTree);
@@ -38,10 +45,26 @@ function App() {
         };
     }, []);
 
-    const [value, setValue] = useState("console.log('hello world!');");
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            console.log("save code", code);
+            socket.emit("file:change", {
+                path: selectedFile,
+                content: code
+            });
+        }, 3 * 1000);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [code]);
+
+    useEffect(() => {
+        if (selectedFile) getFileContent();
+    }, [selectedFile]);
+
     const onChange = useCallback((val, viewUpdate) => {
-        console.log("val:", val);
-        setValue(val);
+        setCode(val);
     }, []);
 
     return (
@@ -49,13 +72,16 @@ function App() {
             <div className='editor-container'>
                 <div className='file-explorer'>
                     <FileTree
-                        onSelect={(path) => console.log("Select-", path)}
+                        onSelect={(path) => setSelectedFile(path)}
                         tree={fileTree}
                     />
                 </div>
                 <div className='editor'>
+                    {selectedFile && (
+                        <p>{selectedFile.replaceAll("/", " / ")}</p>
+                    )}
                     <CodeMirror
-                        value={value}
+                        value={code}
                         height='500px'
                         width='500px'
                         extensions={[javascript({ jsx: true })]}
