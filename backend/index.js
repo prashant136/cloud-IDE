@@ -49,11 +49,23 @@ io.on("connection", (socket) => {
         // console.log("ptyProcess write-", data);
         ptyProcess.write(data);
     });
+
+    socket.on("file:change", async ({ path, content }) => {
+        console.log({ path, content });
+        await fs.writeFile(`./user${path}`, content);
+    });
 });
 
 app.get("/files", async (req, res) => {
     const fileTree = await generateFileTree(path.resolve(__dirname, "user"));
     res.json({ tree: fileTree });
+});
+
+// read content from file and send to ui
+app.get("/files/content", async (req, res) => {
+    const path = req.query.path;
+    const content = await fs.readFile(`./user${path}`, "utf-8");
+    res.json({ content });
 });
 
 // Ensure the server listens on port 9000
