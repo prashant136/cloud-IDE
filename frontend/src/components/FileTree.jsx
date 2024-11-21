@@ -3,9 +3,9 @@ import React from 'react'
 function FileTreeNode({ fileName, nodes, onSelect, path }) {
     const isDir = !!nodes
     return (
-        <div style={{ marginLeft: 10 }} onClick={(e) => {
+        <div style={{ marginLeft: 10, cursor: 'pointer' }} onClick={(e) => {
             e.stopPropagation();
-            if (!isDir) return;
+            if (isDir) return;
             onSelect(path);
         }}>
             <p style={{ fontWeight: isDir ? 'bold' : 'normal' }}>
@@ -14,10 +14,10 @@ function FileTreeNode({ fileName, nodes, onSelect, path }) {
             </p>
             {
                 nodes && <ul>
-                    {Object.keys(nodes).map(child => {
+                    {Object.keys(nodes).map((child, i) => {
                         return (
-                            <li>
-                                <FileTreeNode fileName={child} nodes={nodes[child]} />
+                            <li key={`${child}-${i}`}>
+                                <FileTreeNode fileName={child} onSelect={onSelect} nodes={nodes[child]} path={path + "/" + child} />
                             </li>
                         )
                     })}
@@ -29,6 +29,6 @@ function FileTreeNode({ fileName, nodes, onSelect, path }) {
 
 export default function FileTree({ tree, onSelect }) {
     return (
-        <FileTreeNode fileName={'/'} onSelect={(path) => console.log("Select", path)} path={""} nodes={tree} />
+        <FileTreeNode fileName={'/'} onSelect={onSelect} path={""} nodes={tree} />
     )
 }

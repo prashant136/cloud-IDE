@@ -1,0 +1,25 @@
+.playground {
+ display: flex;
+ flex-direction: column;
+
+ .editor-container {
+     min-height: 60vh;
+     display: flex;
+     
+     .file-explorer {
+
+     }
+
+     .editor {
+        display: flex;
+        flex-direction: column;
+        row-gap: 8px;
+        cursor: pointer;
+        p {
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 30px;
+        }
+     }
+ }
+}
